@@ -1,11 +1,17 @@
 use {
-    crate::{skyscraper::SkyscraperSponge, FieldElement},
+    crate::{
+        hash::{
+            blake3::Blake3Sponge,
+            utils::{bytes_to_field, field_to_bytes},
+        },
+        FieldElement,
+    },
     ark_crypto_primitives::{
         crh::{CRHScheme, TwoToOneCRHScheme},
         merkle_tree::{Config, IdentityDigestConverter},
         Error,
     },
-    ark_ff::{BigInt, PrimeField},
+    blake3::Hasher,
     rand08::Rng,
     serde::{Deserialize, Serialize},
     spongefish::{
@@ -18,16 +24,20 @@ use {
 };
 
 fn compress(l: FieldElement, r: FieldElement) -> FieldElement {
-    let l64 = l.into_bigint().0;
-    let r64 = r.into_bigint().0;
-    let out = skyscraper::simple::compress(l64, r64);
-    FieldElement::new(BigInt(out))
+    let l_bytes = field_to_bytes(l);
+    let r_bytes = field_to_bytes(r);
+    let mut hasher = Hasher::new();
+    hasher.update(&l_bytes);
+    hasher.update(&r_bytes);
+    let hash_bytes = hasher.finalize();
+    let hash_array: [u8; 32] = *hash_bytes.as_bytes();
+    bytes_to_field(hash_array)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SkyscraperCRH;
+pub struct Blake3CRH;
 
-impl CRHScheme for SkyscraperCRH {
+impl CRHScheme for Blake3CRH {
     type Input = [FieldElement];
     type Output = FieldElement;
     type Parameters = ();
@@ -48,9 +58,9 @@ impl CRHScheme for SkyscraperCRH {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SkyscraperTwoToOne;
+pub struct Blake3TwoToOne;
 
-impl TwoToOneCRHScheme for SkyscraperTwoToOne {
+impl TwoToOneCRHScheme for Blake3TwoToOne {
     type Input = FieldElement;
     type Output = FieldElement;
     type Parameters = ();
@@ -74,35 +84,35 @@ impl TwoToOneCRHScheme for SkyscraperTwoToOne {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SkyscraperMerkleConfig;
+pub struct Blake3MerkleConfig;
 
-impl Config for SkyscraperMerkleConfig {
+impl Config for Blake3MerkleConfig {
     type Leaf = [FieldElement];
     type LeafDigest = FieldElement;
     type LeafInnerDigestConverter = IdentityDigestConverter<FieldElement>;
     type InnerDigest = FieldElement;
-    type LeafHash = SkyscraperCRH;
-    type TwoToOneHash = SkyscraperTwoToOne;
+    type LeafHash = Blake3CRH;
+    type TwoToOneHash = Blake3TwoToOne;
 }
 
-impl whir::whir::domainsep::DigestDomainSeparator<SkyscraperMerkleConfig>
-    for DomainSeparator<SkyscraperSponge, FieldElement>
+impl whir::whir::domainsep::DigestDomainSeparator<Blake3MerkleConfig>
+    for DomainSeparator<Blake3Sponge, FieldElement>
 {
     fn add_digest(self, label: &str) -> Self {
         <Self as FieldDomainSeparator<FieldElement>>::add_scalars(self, 1, label)
     }
 }
 
-impl whir::whir::utils::DigestToUnitSerialize<SkyscraperMerkleConfig>
-    for ProverState<SkyscraperSponge, FieldElement>
+impl whir::whir::utils::DigestToUnitSerialize<Blake3MerkleConfig>
+    for ProverState<Blake3Sponge, FieldElement>
 {
     fn add_digest(&mut self, digest: FieldElement) -> ProofResult<()> {
         self.add_scalars(&[digest])
     }
 }
 
-impl whir::whir::utils::DigestToUnitDeserialize<SkyscraperMerkleConfig>
-    for VerifierState<'_, SkyscraperSponge, FieldElement>
+impl whir::whir::utils::DigestToUnitDeserialize<Blake3MerkleConfig>
+    for VerifierState<'_, Blake3Sponge, FieldElement>
 {
     fn read_digest(&mut self) -> ProofResult<FieldElement> {
         let [r] = self.next_scalars()?;

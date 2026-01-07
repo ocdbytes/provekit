@@ -1,6 +1,6 @@
 use {
     ark_poly::EvaluationDomain,
-    provekit_common::{IOPattern, WhirConfig},
+    provekit_common::{hash::IOPattern, WhirConfig},
     serde::{Deserialize, Serialize},
     std::{fs::File, io::Write},
     tracing::instrument,

@@ -1,19 +1,17 @@
 use {
     crate::{
-        skyscraper::{SkyscraperMerkleConfig, SkyscraperPoW, SkyscraperSponge},
+        hash::{IOPattern, MerkleConfig, PoW},
         utils::{serde_hex, sumcheck::SumcheckIOPattern},
         witness::WitnessIOPattern,
         FieldElement,
     },
     serde::{Deserialize, Serialize},
-    spongefish::DomainSeparator,
     std::fmt::{Debug, Formatter},
     tracing::instrument,
     whir::whir::{domainsep::WhirDomainSeparator, parameters::WhirConfig as GenericWhirConfig},
 };
 
-pub type WhirConfig = GenericWhirConfig<FieldElement, SkyscraperMerkleConfig, SkyscraperPoW>;
-pub type IOPattern = DomainSeparator<SkyscraperSponge, FieldElement>;
+pub type WhirConfig = GenericWhirConfig<FieldElement, MerkleConfig, PoW>;
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct WhirR1CSScheme {
