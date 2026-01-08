@@ -28,11 +28,3 @@ Benchmarking
 Deliverables
  • Code changes enabling hash selection via CLI
  • Short README summarizing setup, protocol changes, results, and key observations
-
-```sh
-# Prepare
-cargo run --bin provekit-cli -- --hash skyscraper prepare noir-examples/noir-passport-examples/complete_age_check/target/complete_age_check.json --pkp ./prover.pkp --pkv ./verifier.pkv
-
-# Benchmark
-cargo run --release --bin provekit-cli -- --hash skyscraper benchmark ./prover.pkp ./verifier.pkv noir-examples/noir-passport-examples/complete_age_check/Prover.toml
-```

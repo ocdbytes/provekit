@@ -1,5 +1,4 @@
 mod benchmark;
-mod build;
 mod circuit_stats;
 mod generate_gnark_inputs;
 mod prepare;
@@ -18,10 +17,6 @@ pub struct Args {
     #[argh(subcommand)]
     subcommand: Commands,
 
-    /// hash function to use (skyscraper, sha2, blake3)
-    #[argh(option, short = 'h')]
-    pub hash: Option<HashFunction>,
-
     /// enable Tracy profiling
     #[cfg(feature = "tracy")]
     #[argh(switch)]
@@ -39,46 +34,6 @@ pub struct Args {
     pub tracy_keepalive: bool,
 }
 
-/// Hash function selection
-#[derive(PartialEq, Eq, Debug, Clone, Copy)]
-pub enum HashFunction {
-    Skyscraper,
-    Sha2,
-    Blake3,
-}
-
-impl std::str::FromStr for HashFunction {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "skyscraper" => Ok(HashFunction::Skyscraper),
-            "sha2" | "sha-2" => Ok(HashFunction::Sha2),
-            "blake3" => Ok(HashFunction::Blake3),
-            _ => Err(format!(
-                "Unknown hash function: {}. Supported: skyscraper, sha2, blake3",
-                s
-            )),
-        }
-    }
-}
-
-impl Default for HashFunction {
-    fn default() -> Self {
-        HashFunction::Skyscraper
-    }
-}
-
-impl HashFunction {
-    pub fn feature_flag(&self) -> &'static str {
-        match self {
-            HashFunction::Skyscraper => "hash-skyscraper",
-            HashFunction::Sha2 => "hash-sha2",
-            HashFunction::Blake3 => "hash-blake3",
-        }
-    }
-}
-
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand)]
 enum Commands {
@@ -92,13 +47,6 @@ enum Commands {
 
 impl Command for Args {
     fn run(&self) -> Result<()> {
-        // Get the hash function
-        let hash = self.hash.unwrap_or_default();
-        // Build with the selected hash function
-        let was_rebuilt = build::ensure_built_with_hash(hash)?;
-        if was_rebuilt {
-            build::re_execute_with_new_binary()?;
-        }
         self.subcommand.run()
     }
 }

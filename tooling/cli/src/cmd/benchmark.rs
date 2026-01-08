@@ -3,10 +3,7 @@ use {
     anyhow::{Context, Result},
     argh::FromArgs,
     criterion::{black_box, Criterion},
-    provekit_common::{
-        file::read,
-        Prover, Verifier,
-    },
+    provekit_common::{file::read, Prover, Verifier},
     provekit_prover::Prove,
     provekit_verifier::Verify,
     std::path::PathBuf,
@@ -30,10 +27,9 @@ pub struct Args {
 impl Command for Args {
     #[instrument(skip_all)]
     fn run(&self) -> Result<()> {
-        let prover: Prover = read(&self.prover_path)
-            .context("while reading Provekit Prover")?;
-        let verifier: Verifier = read(&self.verifier_path)
-            .context("while reading Provekit Verifier")?;
+        let prover: Prover = read(&self.prover_path).context("while reading Provekit Prover")?;
+        let verifier: Verifier =
+            read(&self.verifier_path).context("while reading Provekit Verifier")?;
 
         let proof = prover
             .clone()
@@ -71,4 +67,3 @@ impl Command for Args {
         Ok(())
     }
 }
-
