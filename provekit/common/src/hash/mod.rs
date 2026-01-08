@@ -18,19 +18,16 @@ cfg_if! {
         pub type Sponge = crate::hash::sha2::Sha2Sponge;
         pub type MerkleConfig = crate::hash::sha2::Sha2MerkleConfig;
         pub type PoW = crate::hash::sha2::Sha2PoW;
-
     } else if #[cfg(feature = "hash-blake3")] {
         pub mod blake3;
         pub type Sponge = crate::hash::blake3::Blake3Sponge;
         pub type MerkleConfig = crate::hash::blake3::Blake3MerkleConfig;
         pub type PoW = crate::hash::blake3::Blake3PoW;
-
     } else if #[cfg(feature = "hash-keccak")] {
         pub mod keccak;
         pub type Sponge = crate::hash::keccak::KeccakSponge;
         pub type MerkleConfig = crate::hash::keccak::KeccakMerkleConfig;
         pub type PoW = crate::hash::keccak::KeccakPoW;
-
     } else {
         pub mod skyscraper;
         pub type Sponge = crate::hash::skyscraper::SkyscraperSponge;

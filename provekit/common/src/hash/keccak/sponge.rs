@@ -41,7 +41,9 @@ impl Permutation for Keccak {
 
     fn permute(&mut self) {
         // Convert state to bytes: 2 field elements = 64 bytes
-        let state_bytes: Vec<u8> = self.state.iter().flat_map(|f| field_to_bytes(*f)).collect();
+        let mut state_bytes: [u8; 64] = [0; 64];
+        state_bytes[0..32].copy_from_slice(&field_to_bytes(self.state[0]));
+        state_bytes[32..64].copy_from_slice(&field_to_bytes(self.state[1]));
         // Hash with Keccak-256 to get 32 bytes
         let mut hasher = Keccak256::new();
         hasher.update(&state_bytes);

@@ -41,14 +41,15 @@ impl Permutation for Sha2 {
 
     fn permute(&mut self) {
         // Convert state to bytes: 2 field elements = 64 bytes
-        let state_bytes: Vec<u8> = self.state.iter().flat_map(|f| field_to_bytes(*f)).collect();
+        let mut state_bytes: [u8; 64] = [0; 64];
+        state_bytes[0..32].copy_from_slice(&field_to_bytes(self.state[0]));
+        state_bytes[32..64].copy_from_slice(&field_to_bytes(self.state[1]));
+
         // Hash with SHA2 to get 32 bytes
         let mut hasher = Sha256::new();
         hasher.update(&state_bytes);
         let hash_bytes = hasher.finalize();
-        // Split hash into two 16-byte chunks and convert to field elements
-        // We'll use the first 32 bytes for the first element, and hash again for the
-        // second
+        // Use the first 32 bytes for the first element, and hash again for the second
         let first_bytes: [u8; 32] = hash_bytes.into();
         let first = bytes_to_field(first_bytes);
         // Hash again with the first element to get the second element
