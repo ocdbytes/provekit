@@ -29,14 +29,24 @@ pub struct DataFromSumcheckVerifier {
 }
 
 pub trait WhirR1CSVerifier {
-    fn verify(&self, proof: &WhirR1CSProof) -> Result<()>;
+    fn verify(
+        &self,
+        proof: &WhirR1CSProof,
+        hash_function: provekit_common::hash::HashFunction,
+    ) -> Result<()>;
 }
 
 impl WhirR1CSVerifier for WhirR1CSScheme {
     #[instrument(skip_all)]
     #[allow(unused)]
-    fn verify(&self, proof: &WhirR1CSProof) -> Result<()> {
-        let io = self.create_io_pattern();
+    fn verify(
+        &self,
+        proof: &WhirR1CSProof,
+        hash_function: provekit_common::hash::HashFunction,
+    ) -> Result<()> {
+        // Set hash function before creating IOPattern to ensure it's used consistently
+        provekit_common::hash::set_hash_function(hash_function);
+        let io = self.create_io_pattern_with_hash(hash_function);
         let mut arthur = io.to_verifier_state(&proof.transcript);
 
         let commitment_reader = CommitmentReader::new(&self.whir_witness);

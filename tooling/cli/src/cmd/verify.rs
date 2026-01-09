@@ -2,7 +2,11 @@ use {
     super::Command,
     anyhow::{Context, Result},
     argh::FromArgs,
-    provekit_common::{file::read, Verifier},
+    provekit_common::{
+        file::read,
+        hash::{set_hash_function, HashFunction},
+        NoirProof, Verifier,
+    },
     provekit_verifier::Verify,
     std::path::PathBuf,
     tracing::instrument,
@@ -29,7 +33,8 @@ impl Command for Args {
             read(&self.verifier_path).context("while reading Provekit Verifier")?;
 
         // Read the proof
-        let proof = read(&self.proof_path).context("while reading proof")?;
+        let proof: NoirProof = read(&self.proof_path).context("while reading proof")?;
+        set_hash_function(proof.hash_function);
 
         // Verify the proof
         verifier

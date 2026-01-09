@@ -6,6 +6,7 @@ use {
     anyhow::{ensure, Context as _, Result},
     noirc_artifacts::program::ProgramArtifact,
     provekit_common::{
+        hash::HashFunction,
         utils::PrintAbi,
         witness::{NoirWitnessGenerator, WitnessBuilder},
         NoirProofScheme, WhirR1CSScheme,
@@ -15,26 +16,32 @@ use {
 };
 
 pub trait NoirProofSchemeBuilder {
-    fn from_file(path: impl AsRef<Path> + std::fmt::Debug) -> Result<Self>
+    fn from_file(
+        path: impl AsRef<Path> + std::fmt::Debug,
+        hash_function: HashFunction,
+    ) -> Result<Self>
     where
         Self: Sized;
 
-    fn from_program(program: ProgramArtifact) -> Result<Self>
+    fn from_program(program: ProgramArtifact, hash_function: HashFunction) -> Result<Self>
     where
         Self: Sized;
 }
 
 impl NoirProofSchemeBuilder for NoirProofScheme {
     #[instrument(fields(size = path.as_ref().metadata().map(|m| m.len()).ok()))]
-    fn from_file(path: impl AsRef<Path> + std::fmt::Debug) -> Result<Self> {
+    fn from_file(
+        path: impl AsRef<Path> + std::fmt::Debug,
+        hash_function: HashFunction,
+    ) -> Result<Self> {
         let file = File::open(path).context("while opening Noir program")?;
         let program = serde_json::from_reader(file).context("while reading Noir program")?;
 
-        Self::from_program(program)
+        Self::from_program(program, hash_function)
     }
 
     #[instrument(skip_all)]
-    fn from_program(program: ProgramArtifact) -> Result<Self> {
+    fn from_program(program: ProgramArtifact, hash_function: HashFunction) -> Result<Self> {
         info!("Program noir version: {}", program.noir_version);
         info!("Program entry point: fn main{};", PrintAbi(&program.abi));
         ensure!(
@@ -90,6 +97,7 @@ impl NoirProofSchemeBuilder for NoirProofScheme {
             split_witness_builders,
             witness_generator,
             whir_for_witness,
+            hash_function,
         })
     }
 }
@@ -100,6 +108,7 @@ mod tests {
         crate::NoirProofSchemeBuilder,
         ark_std::One,
         provekit_common::{
+            hash::HashFunction,
             witness::{ConstantTerm, SumTerm, WitnessBuilder},
             FieldElement, NoirProofScheme,
         },
@@ -126,7 +135,7 @@ mod tests {
     #[test]
     fn test_noir_proof_scheme_serde() {
         let path = PathBuf::from("../../tooling/provekit-bench/benches/poseidon_rounds.json");
-        let proof_schema = NoirProofScheme::from_file(path).unwrap();
+        let proof_schema = NoirProofScheme::from_file(path, HashFunction::Skyscraper).unwrap();
 
         test_serde(&proof_schema.r1cs);
         test_serde(&proof_schema.split_witness_builders);

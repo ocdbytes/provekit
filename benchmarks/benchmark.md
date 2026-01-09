@@ -5,9 +5,9 @@
 ## Hash Functions
 
 - Skyscraper (default)
-- SHA2 (--features hash-sha2)
-- Blake3 (--features hash-blake3)
-- Keccak (--features hash-keccak)
+- SHA2
+- Blake3
+- Keccak
 
 ## Benchmarking
 
@@ -23,10 +23,10 @@ cd noir-examples/noir-passport-examples/complete_age_check
 nargo compile
 
 # Prepare
-cargo run --bin provekit-cli --release --features hash-<hash_function> prepare noir-examples/noir-passport-examples/complete_age_check/target/complete_age_check.json --pkp ./prover.pkp --pkv ./verifier.pkv
+cargo run --bin provekit-cli --release prepare noir-examples/noir-passport-examples/complete_age_check/target/complete_age_check.json --pkp ./prover.pkp --pkv ./verifier.pkv --hash <hash_function>
 
 # Run benchmarks
-cargo run --bin provekit-cli --release --features hash-<hash_function> benchmark ./prover.pkp ./verifier.pkv noir-examples/noir-passport-examples/complete_age_check/Prover.toml
+cargo run --bin provekit-cli --release benchmark ./prover.pkp ./verifier.pkv noir-examples/noir-passport-examples/complete_age_check/Prover.toml
 ```
 
 This will generate a report in the `target/criterion` directory.
@@ -38,7 +38,7 @@ open $pwd/target/criterion/report/index.html
 To get memory usage run :
 
 ```sh
-cargo instruments --template Allocations --bin provekit-cli --release --features hash-<hash_function> prove ./prover.pkp noir-examples/noir-passport-examples/complete_age_check/Prover.toml -o ./proof.np
+cargo instruments --template Allocations --bin provekit-cli --release prove ./prover.pkp noir-examples/noir-passport-examples/complete_age_check/Prover.toml -o ./proof.np
 ```
 
 Example output:

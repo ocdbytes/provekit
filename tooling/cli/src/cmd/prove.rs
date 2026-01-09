@@ -4,6 +4,7 @@ use {
     argh::FromArgs,
     provekit_common::{
         file::{read, write},
+        hash::set_hash_function,
         Prover,
     },
     provekit_prover::Prove,
@@ -45,9 +46,10 @@ impl Command for Args {
     fn run(&self) -> Result<()> {
         // Read the scheme
         let prover: Prover = read(&self.prover_path).context("while reading Provekit Prover")?;
+        set_hash_function(prover.hash_function);
         let (constraints, witnesses) = prover.size();
         info!(constraints, witnesses, "Read Noir proof scheme");
-
+        info!("Hash function: {:?}", prover.hash_function);
         // // Read the input toml
         // let input_map = scheme.read_witness(&self.input_path)?;
 

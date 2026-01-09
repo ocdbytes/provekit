@@ -14,6 +14,12 @@ noirup --version v1.0.0-beta.11
 
 > _NOTE:_ The example below is being run for single example `poseidon-rounds`. You can use different example to run same commands.
 
+Hash functions supported:
+- Skyscraper (default)
+- SHA2
+- Blake3
+- Keccak
+
 Compile the Noir circuit:
 
 ```sh
@@ -24,25 +30,25 @@ nargo compile
 Prepare the Noir program (generates prover and verifier files):
 
 ```sh
-cargo run --release --bin provekit-cli prepare ./target/basic.json --pkp ./prover.pkp --pkv ./verifier.pkv
+cargo run --bin provekit-cli --release prepare ./target/basic.json --pkp ./prover.pkp --pkv ./verifier.pkv --hash <hash_function>
 ```
 
 Generate the Noir Proof using the input Toml:
 
 ```sh
-cargo run --release --bin provekit-cli prove ./prover.pkp ./Prover.toml -o ./proof.np
+cargo run --bin provekit-cli --release prove ./prover.pkp ./Prover.toml -o ./proof.np
 ```
 
 Verify the Noir Proof:
 
 ```sh
-cargo run --release --bin provekit-cli verify ./verifier.pkv ./proof.np
+cargo run --bin provekit-cli --release verify ./verifier.pkv ./proof.np
 ```
 
 Generate inputs for Gnark circuit:
 
 ```sh
-cargo run --release --bin provekit-cli generate-gnark-inputs ./prover.pkp ./proof.np
+cargo run --bin provekit-cli --release generate-gnark-inputs ./prover.pkp ./proof.np
 ```
 
 Recursively verify in a Gnark proof (reads the proof from `../ProveKit/prover/proof`):

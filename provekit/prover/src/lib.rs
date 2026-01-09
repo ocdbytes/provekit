@@ -119,7 +119,10 @@ impl Prove for Prover {
             .prove(merlin, self.r1cs, commitments)
             .context("While proving R1CS instance")?;
 
-        Ok(NoirProof { whir_r1cs_proof })
+        Ok(NoirProof {
+            whir_r1cs_proof,
+            hash_function: self.hash_function,
+        })
     }
 }
 

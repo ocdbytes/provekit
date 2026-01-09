@@ -29,7 +29,6 @@ whir.workspace = true
 # 3rd party
 anyhow.workspace = true
 bytes.workspace = true
-cfg-if = "1.0.4"
 hex.workspace = true
 itertools.workspace = true
 postcard.workspace = true
@@ -38,20 +37,14 @@ rayon.workspace = true
 ruint.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-sha2 = { workspace = true, optional = true }
-sha3 = { workspace = true, optional = true }
-blake3 = { workspace = true, optional = true }
+sha2 = { workspace = true }
+sha3 = { workspace = true }
+blake3 = { workspace = true }
 tracing.workspace = true
 zerocopy.workspace = true
 zeroize.workspace = true
 zstd.workspace = true
-
-[features]
-default = ["hash-skyscraper"]
-hash-skyscraper = []
-hash-sha2 = ["dep:sha2"]
-hash-keccak = ["dep:sha3"]
-hash-blake3 = ["dep:blake3"]
+lazy_static = "1.5.0"
 
 [lints]
 workspace = true

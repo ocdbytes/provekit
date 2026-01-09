@@ -6,6 +6,7 @@ use {
         FieldElement,
     },
     serde::{Deserialize, Serialize},
+    spongefish::ByteDomainSeparator,
     std::fmt::{Debug, Formatter},
     tracing::instrument,
     whir::whir::{domainsep::WhirDomainSeparator, parameters::WhirConfig as GenericWhirConfig},
@@ -27,7 +28,16 @@ pub struct WhirR1CSScheme {
 impl WhirR1CSScheme {
     #[instrument(skip_all)]
     pub fn create_io_pattern(&self) -> IOPattern {
-        let mut io = IOPattern::new("🌪️");
+        use crate::hash::get_hash_function;
+        self.create_io_pattern_with_hash(get_hash_function())
+    }
+
+    #[instrument(skip_all)]
+    pub fn create_io_pattern_with_hash(
+        &self,
+        hash_function: crate::hash::HashFunction,
+    ) -> IOPattern {
+        let mut io = IOPattern::new_with_hash("🌪️", hash_function);
 
         if self.num_challenges > 0 {
             // Compute total constraints: OOD + statement

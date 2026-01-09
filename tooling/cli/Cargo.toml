@@ -37,7 +37,3 @@ workspace = true
 default = ["profiling-allocator"]
 profiling-allocator = []
 tracy = ["dep:tracing-tracy"]
-hash-sha2 = ["provekit-common/hash-sha2"]
-hash-keccak = ["provekit-common/hash-keccak"]
-hash-blake3 = ["provekit-common/hash-blake3"]
-hash-skyscraper = ["provekit-common/hash-skyscraper"]
