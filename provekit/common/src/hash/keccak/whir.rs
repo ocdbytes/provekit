@@ -27,8 +27,8 @@ fn compress(l: FieldElement, r: FieldElement) -> FieldElement {
     let l_bytes = field_to_bytes(l);
     let r_bytes = field_to_bytes(r);
     let mut hasher = Keccak256::new();
-    hasher.update(&l_bytes);
-    hasher.update(&r_bytes);
+    hasher.update(l_bytes);
+    hasher.update(r_bytes);
     let hash_bytes = hasher.finalize();
     let hash_array: [u8; 32] = hash_bytes.into();
     bytes_to_field(hash_array)

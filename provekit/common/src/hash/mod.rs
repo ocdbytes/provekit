@@ -285,7 +285,7 @@ impl MerkleConfig {
 #[derive(Clone)]
 pub enum PoW {
     Skyscraper(crate::hash::skyscraper::SkyscraperPoW),
-    Blake3(crate::hash::blake3::Blake3PoW),
+    Blake3(Box<crate::hash::blake3::Blake3PoW>),
     Keccak(crate::hash::keccak::KeccakPoW),
     Sha2(crate::hash::sha2::Sha2PoW),
 }
@@ -294,7 +294,7 @@ impl PowStrategy for PoW {
     fn new(challenge: [u8; 32], bits: f64) -> Self {
         match get_hash_function() {
             HashFunction::Skyscraper => Self::Skyscraper(SkyscraperPoW::new(challenge, bits)),
-            HashFunction::Blake3 => Self::Blake3(Blake3PoW::new(challenge, bits)),
+            HashFunction::Blake3 => Self::Blake3(Box::new(Blake3PoW::new(challenge, bits))),
             HashFunction::Keccak => Self::Keccak(KeccakPoW::new(challenge, bits)),
             HashFunction::Sha2 => Self::Sha2(Sha2PoW::new(challenge, bits)),
         }

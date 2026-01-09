@@ -21,8 +21,8 @@ impl PowStrategy for Sha2PoW {
     fn check(&mut self, nonce: u64) -> bool {
         // Hash challenge || nonce
         let mut hasher = Sha256::new();
-        hasher.update(&self.challenge);
-        hasher.update(&nonce.to_le_bytes());
+        hasher.update(self.challenge);
+        hasher.update(nonce.to_le_bytes());
         let hash = hasher.finalize();
         check_pow_bits(&hash, self.bits)
     }
@@ -39,8 +39,8 @@ impl PowStrategy for Sha2PoW {
                 }
                 // Check if this nonce is a solution
                 let mut hasher = Sha256::new();
-                hasher.update(&challenge);
-                hasher.update(&nonce.to_le_bytes());
+                hasher.update(challenge);
+                hasher.update(nonce.to_le_bytes());
                 let hash = hasher.finalize();
                 // Count leading zero bits
                 let threshold_bits = bits as u32;

@@ -47,14 +47,14 @@ impl Permutation for Sha2 {
 
         // Hash with SHA2 to get 32 bytes
         let mut hasher = Sha256::new();
-        hasher.update(&state_bytes);
+        hasher.update(state_bytes);
         let hash_bytes = hasher.finalize();
         // Use the first 32 bytes for the first element, and hash again for the second
         let first_bytes: [u8; 32] = hash_bytes.into();
         let first = bytes_to_field(first_bytes);
         // Hash again with the first element to get the second element
         let mut hasher2 = Sha256::new();
-        hasher2.update(&first_bytes);
+        hasher2.update(first_bytes);
         let hash_bytes2 = hasher2.finalize();
         let second_bytes: [u8; 32] = hash_bytes2.into();
         let second = bytes_to_field(second_bytes);

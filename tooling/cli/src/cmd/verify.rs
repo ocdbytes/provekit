@@ -2,11 +2,7 @@ use {
     super::Command,
     anyhow::{Context, Result},
     argh::FromArgs,
-    provekit_common::{
-        file::read,
-        hash::{set_hash_function, HashFunction},
-        NoirProof, Verifier,
-    },
+    provekit_common::{file::read, hash::set_hash_function, NoirProof, Verifier},
     provekit_verifier::Verify,
     std::path::PathBuf,
     tracing::instrument,

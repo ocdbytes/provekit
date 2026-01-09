@@ -36,8 +36,8 @@ pub fn check_pow_bits(hash: &[u8], bits: f64) -> bool {
     let threshold_bytes = (threshold_bits / 8) as usize;
     let threshold_bits_remainder = (threshold_bits % 8) as u8;
     // Check full bytes
-    for i in 0..threshold_bytes {
-        if hash[i] != 0 {
+    for byte in hash.iter().take(threshold_bytes) {
+        if *byte != 0 {
             return false;
         }
     }

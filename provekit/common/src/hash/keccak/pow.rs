@@ -24,8 +24,8 @@ impl PowStrategy for KeccakPoW {
     fn check(&mut self, nonce: u64) -> bool {
         // Hash challenge || nonce
         let mut hasher = Keccak256::new();
-        hasher.update(&self.challenge);
-        hasher.update(&nonce.to_le_bytes());
+        hasher.update(self.challenge);
+        hasher.update(nonce.to_le_bytes());
         let hash = hasher.finalize();
         check_pow_bits(&hash, self.bits)
     }
@@ -42,8 +42,8 @@ impl PowStrategy for KeccakPoW {
                 }
                 // Check if this nonce is a solution
                 let mut hasher = Keccak256::new();
-                hasher.update(&challenge);
-                hasher.update(&nonce.to_le_bytes());
+                hasher.update(challenge);
+                hasher.update(nonce.to_le_bytes());
                 let hash = hasher.finalize();
                 // Count leading zero bits
                 let threshold_bits = bits as u32;
