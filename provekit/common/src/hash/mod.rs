@@ -23,7 +23,6 @@ use {
         merkle_tree::Config,
         Error,
     },
-    lazy_static::lazy_static,
     rand08::Rng,
     serde::{Deserialize, Serialize},
     spongefish::{
@@ -34,7 +33,7 @@ use {
         ByteDomainSeparator, DomainSeparator, ProofResult, ProverState, VerifierState,
     },
     spongefish_pow::PowStrategy,
-    std::{str::FromStr, sync::RwLock},
+    std::{str::FromStr, sync::atomic::{AtomicU8, Ordering}},
     whir::{crypto::merkle_tree::IdentityDigestConverter, whir::domainsep::DigestDomainSeparator},
     zeroize::Zeroize,
 };
@@ -46,24 +45,25 @@ pub mod skyscraper;
 
 mod utils;
 
-lazy_static! {
-    static ref CURRENT_HASH_FUNCTION: RwLock<HashFunction> = RwLock::new(HashFunction::Skyscraper);
-}
+// Use AtomicU8 for lock-free reads in hot paths
+static CURRENT_HASH_FUNCTION: AtomicU8 = AtomicU8::new(HashFunction::Skyscraper as u8);
 
 pub fn set_hash_function(hash_fn: HashFunction) {
-    *CURRENT_HASH_FUNCTION.write().unwrap() = hash_fn;
+    CURRENT_HASH_FUNCTION.store(hash_fn as u8, Ordering::Release);
 }
 
+#[inline(always)]
 pub fn get_hash_function() -> HashFunction {
-    *CURRENT_HASH_FUNCTION.read().unwrap()
+    unsafe { std::mem::transmute(CURRENT_HASH_FUNCTION.load(Ordering::Relaxed)) }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum HashFunction {
-    Sha2,
-    Blake3,
-    Keccak,
-    Skyscraper,
+    Sha2 = 0,
+    Blake3 = 1,
+    Keccak = 2,
+    Skyscraper = 3,
 }
 
 impl HashFunction {
@@ -209,6 +209,7 @@ impl CRHScheme for CRH {
         Ok(())
     }
 
+    #[inline]
     fn evaluate<T: std::borrow::Borrow<Self::Input>>(
         _: &Self::Parameters,
         input: T,
@@ -231,6 +232,7 @@ impl TwoToOneCRHScheme for TwoToOneCRH {
         Ok(())
     }
 
+    #[inline]
     fn evaluate<T: std::borrow::Borrow<Self::Input>>(
         _: &Self::Parameters,
         l: T,
@@ -246,6 +248,7 @@ impl TwoToOneCRHScheme for TwoToOneCRH {
         }
     }
 
+    #[inline]
     fn compress<T: std::borrow::Borrow<Self::Output>>(
         p: &Self::Parameters,
         l: T,
@@ -347,13 +350,12 @@ impl IOPattern {
         }
     }
     fn to_domain_separator_string(&self) -> String {
-        let transcript_bytes = match self {
-            Self::Sha2(io) => io.as_bytes(),
-            Self::Blake3(io) => io.as_bytes(),
-            Self::Keccak(io) => io.as_bytes(),
-            Self::Skyscraper(io) => io.as_bytes(),
-        };
-        String::from_utf8(transcript_bytes.to_vec()).unwrap()
+        match self {
+            Self::Sha2(io) => String::from_utf8(io.as_bytes().to_vec()).unwrap(),
+            Self::Blake3(io) => String::from_utf8(io.as_bytes().to_vec()).unwrap(),
+            Self::Keccak(io) => String::from_utf8(io.as_bytes().to_vec()).unwrap(),
+            Self::Skyscraper(io) => String::from_utf8(io.as_bytes().to_vec()).unwrap(),
+        }
     }
     pub fn to_prover_state(&self) -> ProverState<Sponge, FieldElement> {
         let domain_separator =

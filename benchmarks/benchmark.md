@@ -49,7 +49,7 @@ Example output:
 
 | Hash Function | Proving Time (Mean) | Verification Time (Mean) | Prover Chart                          | Verifier Chart                         |
 | ------------- | ------------------- | ------------------------ | ------------------------------------- | -------------------------------------- |
-| Skyscraper    | 6.4895s              | 35.010ms                 | ![Skyscraper](./skyscraper/prove.png) | ![Skyscraper](./skyscraper/verify.png) |
-| SHA2          | 6.1671s              | 30.387ms                 | ![SHA2](./sha2/prove.png)             | ![SHA2](./sha2/verify.png)             |
-| Blake3        | 5.3849s              | 27.194ms                 | ![Blake3](./blake3/prove.png)         | ![Blake3](./blake3/verify.png)         |
-| Keccak        | 6.8657s              | 28.381ms                 | ![Keccak](./keccak/prove.png)         | ![Keccak](./keccak/verify.png)         |
+| Skyscraper    | 5.9175s             | 33.337ms                 | ![Skyscraper](./skyscraper/prove.png) | ![Skyscraper](./skyscraper/verify.png) |
+| SHA2          | 5.3425s             | 30.566ms                 | ![SHA2](./sha2/prove.png)             | ![SHA2](./sha2/verify.png)             |
+| Blake3        | 4.2266s             | 26.723ms                 | ![Blake3](./blake3/prove.png)         | ![Blake3](./blake3/verify.png)         |
+| Keccak        | 4.9722s             | 28.573ms                 | ![Keccak](./keccak/prove.png)         | ![Keccak](./keccak/verify.png)         |
